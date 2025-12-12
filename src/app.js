@@ -33,9 +33,10 @@ app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 
 
+// import router from routes file
+import router from "./routes/customer.routes";
+
+app.use("/register",router)
 
 
-app.get('/',(req,res) => {
-  res.status(200).send("Naman Jain")
-})
 export {app}
