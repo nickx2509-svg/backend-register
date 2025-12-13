@@ -24,17 +24,20 @@ const CustomerSchema = new mongoose.Schema({
     type:String,
     lowercase:true,
     trim:true
+  },
+  refreshToken:{
+    type:String,
   }
 },
 {timestamps:true}
 )
 
-CustomerSchema.pre("save", async function (next) {
-  if(!this.password.isModified("password")){
-    return next();
-  }
+CustomerSchema.pre("save", async function () {
+  if(!this.isModified("password"))  return;
+  
+  
   this.password = await bcrypt.hash(this.password,10)
-  next();
+
 })
 
 CustomerSchema.methods.isPasswordCorrect = async function(password){
@@ -42,11 +45,28 @@ CustomerSchema.methods.isPasswordCorrect = async function(password){
 }
 
 CustomerSchema.methods.generateAccessToken = function (){
-  return jwt({
+  return jwt.sign ({
     _id:this._id,
     name:this.name,
     email:this.email
-  })
+  },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn:process.env.ACCESS_TOKEN_EXPIRE
+    },
+)
+}
+
+CustomerSchema.methods.generateRefreshToken = function (){
+  return jwt.sign({
+    _id:this._id
+  },
+  process.env.REFRESH_TOKEN_SECRET,
+  {
+    expiresIn:process.env.REFRESH_TOKEN_EXPIRE
+  }
+
+)
 }
 
 
