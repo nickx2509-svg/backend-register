@@ -3,30 +3,27 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 const CustomerSchema = new mongoose.Schema({
-  name:{
-    type:String,
-    required:true,
-    trim:true,
-  },
+  
   email:{
     type:String,
     required:true,
+    unique:true
   },
   password:{
     type:String,
     required:true,
+    select:false,
   },
-  age:{
-    type:Number,
-    required:true,
-  },
+
   username:{
     type:String,
     lowercase:true,
-    trim:true
+    trim:true,
+    unique:true
   },
   refreshToken:{
     type:String,
+    select:false
   }
 },
 {timestamps:true}
@@ -47,8 +44,8 @@ CustomerSchema.methods.isPasswordCorrect = async function(password){
 CustomerSchema.methods.generateAccessToken = function (){
   return jwt.sign ({
     _id:this._id,
-    name:this.name,
-    email:this.email
+    email:this.email,
+    username:this.username
   },
     process.env.ACCESS_TOKEN_SECRET,
     {
